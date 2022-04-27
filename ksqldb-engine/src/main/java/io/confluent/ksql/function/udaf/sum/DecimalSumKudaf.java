@@ -36,18 +36,19 @@ public class DecimalSumKudaf
   DecimalSumKudaf(
       final String functionName,
       final int argIndexInValue,
+      final SqlDecimal aggregateSchema,
       final SqlDecimal outputSchema
   ) {
     super(
         functionName,
         argIndexInValue,
         () -> BigDecimal.ZERO,
-        outputSchema,
+        aggregateSchema,
         outputSchema,
         Collections.singletonList(new ParameterInfo("val", ParamTypes.DECIMAL, "", false)),
         "Computes the sum of decimal values for a key, resulting in a decimal with the same "
             + "precision and scale.");
-    context = new MathContext(outputSchema.getPrecision());
+    context = new MathContext(aggregateSchema.getPrecision());
   }
 
   @Override
