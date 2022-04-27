@@ -103,6 +103,7 @@ class Analyzer {
   private final MetaStore metaStore;
   private final String topicPrefix;
   private final boolean rowpartitionRowoffsetEnabled;
+  private final boolean rowIdEnabled;
   private final boolean pullLimitClauseEnabled;
 
   /**
@@ -115,12 +116,14 @@ class Analyzer {
       final MetaStore metaStore,
       final String topicPrefix,
       final boolean rowpartitionRowoffsetEnabled,
+      final boolean rowIdEnabled,
       final boolean pullLimitClauseEnabled
 
   ) {
     this.metaStore = requireNonNull(metaStore, "metaStore");
     this.topicPrefix = requireNonNull(topicPrefix, "topicPrefix");
     this.rowpartitionRowoffsetEnabled = rowpartitionRowoffsetEnabled;
+    this.rowIdEnabled = rowIdEnabled;
     this.pullLimitClauseEnabled = pullLimitClauseEnabled;
   }
 
@@ -159,6 +162,7 @@ class Analyzer {
       this.analysis = new Analysis(
               query.getRefinement(),
               rowpartitionRowoffsetEnabled,
+              rowIdEnabled,
               pullLimitClauseEnabled
           );
 
@@ -626,7 +630,7 @@ class Analyzer {
     private void validateSelect(final SingleColumn column) {
 
       final int pseudoColumnVersion = SystemColumns
-          .getPseudoColumnVersionFromConfig(rowpartitionRowoffsetEnabled);
+          .getPseudoColumnVersionFromConfig(rowpartitionRowoffsetEnabled , rowIdEnabled);
 
       SystemColumns.systemColumnNames(pseudoColumnVersion)
           .forEach(col -> checkForReservedToken(column, col));
