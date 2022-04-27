@@ -53,9 +53,10 @@ public class SumAggFunctionFactory extends AggregateFunctionFactory {
       case DOUBLE:
         return new DoubleSumKudaf(FUNCTION_NAME, initArgs.udafIndex());
       case DECIMAL:
-        final SqlDecimal input = (SqlDecimal) argSchema;
-        final SqlDecimal output = SqlDecimal.of(input.getPrecision() + 50, input.getScale());
-        return new DecimalSumKudaf(FUNCTION_NAME, initArgs.udafIndex(), output, input);
+        final SqlDecimal output = (SqlDecimal) argSchema;
+        final SqlDecimal aggregate = SqlDecimal.of(output.getPrecision() + 50, output.getScale());
+        // return new DecimalSumKudaf(FUNCTION_NAME, initArgs.udafIndex(), aggregate, output);
+        return new DecimalSumKudaf(FUNCTION_NAME, initArgs.udafIndex(), output, output);
       default:
         throw new KsqlException(
           String.format(
