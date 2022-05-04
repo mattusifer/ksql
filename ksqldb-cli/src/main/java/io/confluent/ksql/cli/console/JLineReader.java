@@ -24,6 +24,9 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import org.jline.builtins.Nano;
+import org.jline.reader.Highlighter;
 import org.jline.reader.History;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReader.Option;
@@ -32,6 +35,7 @@ import org.jline.reader.impl.DefaultExpander;
 import org.jline.reader.impl.DefaultParser;
 import org.jline.reader.impl.history.DefaultHistory;
 import org.jline.terminal.Terminal;
+import org.jline.utils.AttributedString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,6 +93,27 @@ public class JLineReader implements io.confluent.ksql.cli.console.LineReader {
       final Path historyFilePath,
       final Predicate<String> cliLinePredicate
   ) {
+    final Highlighter sqlHighlighter = new Highlighter() {
+      private final Nano.SyntaxHighlighter sqlSyntax = Nano.SyntaxHighlighter.build(
+              JLineReader.class.getClassLoader().getResource("sql.nanorc").toString()
+      );
+
+      @Override
+      public AttributedString highlight(final LineReader lineReader, final String s) {
+          return new AttributedString(sqlSyntax.highlight(s));
+      }
+
+      @Override
+      public void setErrorPattern(final Pattern pattern) {
+
+      }
+
+      @Override
+      public void setErrorIndex(final int i) {
+
+      }
+    };
+
     final DefaultParser parser = new DefaultParser();
     parser.setEofOnEscapedNewLine(true);
     parser.setQuoteChars(new char[]{'\''});
@@ -97,6 +122,7 @@ public class JLineReader implements io.confluent.ksql.cli.console.LineReader {
     final LineReader lineReader = LineReaderBuilder.builder()
         .appName("KSQL")
         .variable(LineReader.SECONDARY_PROMPT_PATTERN, ">")
+            .highlighter(sqlHighlighter)
         .option(Option.HISTORY_IGNORE_DUPS, true)
         .option(Option.HISTORY_IGNORE_SPACE, false)
         .option(Option.HISTORY_INCREMENTAL, false)
